@@ -15,7 +15,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 18px 20px 14px;
+  /* top padding grows to cover the status bar when running as a PWA
+     with apple-mobile-web-app-status-bar-style: black-translucent */
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 20px 14px;
   border-bottom: 1px solid var(--border);
   background: var(--card);
   position: sticky;
@@ -41,6 +43,7 @@
 .app-main {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 74px;
 }
 

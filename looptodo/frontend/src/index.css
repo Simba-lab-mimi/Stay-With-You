@@ -60,9 +60,19 @@
   --dur-lg:   360ms;
 }
 
-html, body, #root { height: 100%; }
+html {
+  height: 100%;
+  /* prevent iOS rubber-band scroll on the page itself */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 
 body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  /* eliminates the 300ms double-tap-to-zoom delay on all tappable elements */
+  touch-action: manipulation;
   font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont,
                'Segoe UI', system-ui, sans-serif;
   background: var(--bg);
@@ -71,6 +81,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
+
+#root { height: 100%; }
 
 /* ═══════════════════════════════════════════════════
    GLASS BUTTON SYSTEM
