@@ -1,0 +1,66 @@
+.cm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 16px 28px;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: cm-fade-in var(--dur-md) var(--ease-out) both;
+}
+
+.cm-card {
+  width: 100%;
+  max-width: 380px;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: var(--glass-shadow-lg);
+  overflow: hidden;
+  animation: cm-slide-up var(--dur-lg) var(--ease-spring) both;
+}
+
+.cm-body {
+  padding: 24px 22px 20px;
+  text-align: center;
+}
+
+.cm-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.cm-message {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cm-footer {
+  display: flex;
+  gap: 10px;
+  padding: 4px 14px 14px;
+}
+
+.cm-footer .btn {
+  border-radius: var(--radius-lg);
+  height: 50px;
+}
+
+@keyframes cm-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes cm-slide-up {
+  from { transform: translateY(32px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}

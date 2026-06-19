@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════════════
+   HOME PAGE — layer architecture
+   Layer 0 (z:0)  Ballpit canvas      fixed, pointer-events:none
+   Layer 1 (z:1)  Readability veil    fixed, pointer-events:none
+   Layer 2 (z:2)  All foreground UI   relative, fully interactive
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Outer wrapper ──────────────────────────────────────── */
+.home-page {
+  position: relative;
+  min-height: 100%;
+}
+
+/* ── Layer 1: Ballpit wrapper + veil ────────────────────── */
+.bp-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * Readability veil: dense white at center (where content lives)
+ * fading to near-transparent at edges so balls feel "ambient".
+ * This guarantees legibility even as balls drift behind text.
+ */
+.bp-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 80% at 50% 46%,
+    rgba(255, 255, 255, 0.74) 0%,
+    rgba(255, 255, 255, 0.55) 42%,
+    rgba(255, 255, 255, 0.22) 72%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+}
+
+/* ── Layer 2: Content ───────────────────────────────────── */
+.home-content {
+  position: relative;
+  z-index: 2;
+  padding: 28px 20px 20px;
+}
+
+/* ── Date header ────────────────────────────────────────── */
+.home-header {
+  margin-bottom: 28px;
+}
+
+.home-weekday {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.home-date {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+  margin-bottom: 12px;
+}
+
+.home-count-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(124, 108, 250, 0.10);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 100px;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(124, 108, 250, 0.18);
+}
+
+/* ── Section labels ─────────────────────────────────────── */
+.home-section {
+  margin-bottom: 22px;
+}
+
+.home-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin-bottom: 10px;
+}
+
+.home-section-label--danger {
+  color: var(--danger);
+}
+
+/* ── Status / empty / error ─────────────────────────────── */
+.home-status {
+  text-align: center;
+  padding: 56px 0;
+  font-size: 15px;
+  color: var(--text-muted);
+}
+
+.home-error {
+  padding: 13px 16px;
+  background: rgba(239, 68, 68, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 68, 68, 0.18);
+  border-radius: var(--radius);
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.home-empty {
+  text-align: center;
+  padding: 64px 0 48px;
+}
+
+.home-empty-icon {
+  display: block;
+  font-size: 52px;
+  margin-bottom: 18px;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-7px); }
+}
+
+.home-empty h3 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.home-empty p {
+  font-size: 15px;
+  color: var(--text-muted);
+}

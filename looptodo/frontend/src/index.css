@@ -1,0 +1,224 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ═══════════════════════════════════════════════════
+   DESIGN TOKENS — Apple System Language
+   ═══════════════════════════════════════════════════ */
+:root {
+  /* ── Palette ──────────────────────────────────── */
+  --primary:          #6b5ce7;
+  --primary-deep:     #4a3bc7;
+  --primary-soft:     rgba(107, 92, 231, 0.10);
+  --primary-glass:    rgba(107, 92, 231, 0.82);
+
+  --success:          #16a34a;
+  --success-light:    rgba(22, 163, 74, 0.10);
+
+  --danger:           #dc2626;
+  --danger-light:     rgba(220, 38, 38, 0.08);
+
+  /* ── iOS System Label Colors ─────────────────── */
+  --text:             #1c1c1e;   /* primary label */
+  --text-2:           #48484a;   /* secondary label */
+  --text-muted:       #8e8e93;   /* tertiary label */
+  --text-faint:       #aeaeb2;   /* quaternary label */
+
+  /* ── Surfaces ────────────────────────────────── */
+  --bg:               #f2f2f7;   /* iOS systemGroupedBackground */
+  --card:             #ffffff;
+
+  /* ── Borders ─────────────────────────────────── */
+  --border:           rgba(60, 60, 67, 0.12);
+  --border-soft:      rgba(60, 60, 67, 0.06);
+
+  /* ── Radius system ───────────────────────────── */
+  --radius-xs:        6px;
+  --radius-sm:        10px;
+  --radius:           14px;
+  --radius-lg:        18px;
+  --radius-xl:        22px;
+  --radius-full:      9999px;
+
+  /* ── Glass system ────────────────────────────── */
+  --glass-white:       rgba(255, 255, 255, 0.72);
+  --glass-white-hv:    rgba(255, 255, 255, 0.92);
+  --glass-border:      rgba(255, 255, 255, 0.88);
+  --glass-border-sub:  rgba(60, 60, 67, 0.09);
+  --glass-shadow:      0 4px 24px rgba(0,0,0,0.055), 0 1px 4px rgba(0,0,0,0.035);
+  --glass-shadow-lg:   0 10px 40px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+
+  /* ── Motion ──────────────────────────────────── */
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:  cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-out:     cubic-bezier(0, 0, 0.2, 1);
+  --dur-xs:   100ms;
+  --dur-sm:   160ms;
+  --dur-md:   240ms;
+  --dur-lg:   360ms;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  font-family: -apple-system, 'SF Pro Text', BlinkMacSystemFont,
+               'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ═══════════════════════════════════════════════════
+   GLASS BUTTON SYSTEM
+   ═══════════════════════════════════════════════════ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 22px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  white-space: nowrap;
+  /* Glass base: all buttons blur what's behind them */
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  transition:
+    background    var(--dur-sm) var(--ease-smooth),
+    transform     var(--dur-sm) var(--ease-smooth),
+    box-shadow    var(--dur-sm) var(--ease-smooth),
+    border-color  var(--dur-sm),
+    opacity       var(--dur-sm);
+}
+
+/* Top-edge light refraction — the signature glass look */
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.32) 0%,
+    rgba(255, 255, 255, 0.10) 30%,
+    rgba(255, 255, 255, 0.00) 60%
+  );
+  pointer-events: none;
+}
+
+/* Hover shimmer overlay */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  transition: opacity var(--dur-sm);
+  pointer-events: none;
+}
+.btn:hover:not(:disabled)::after  { opacity: 1; }
+.btn:active:not(:disabled)::after { opacity: 0; }
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: var(--dur-xs);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Primary — purple frosted glass ───────────── */
+.btn-primary {
+  background: rgba(107, 92, 231, 0.74);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  box-shadow:
+    0 4px 24px rgba(107, 92, 231, 0.32),
+    0 1px 4px rgba(0, 0, 0, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+}
+.btn-primary:hover:not(:disabled) {
+  background: rgba(107, 92, 231, 0.88);
+  box-shadow:
+    0 8px 32px rgba(107, 92, 231, 0.42),
+    0 2px 8px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+  transform: translateY(-1px);
+}
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.97) translateY(0);
+}
+
+/* ── Danger — red frosted glass ───────────────── */
+.btn-danger {
+  background: rgba(220, 38, 38, 0.10);
+  border-color: rgba(220, 38, 38, 0.22);
+  color: var(--danger);
+  box-shadow:
+    0 2px 12px rgba(220, 38, 38, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.80),
+    inset 0 -1px 0 rgba(220, 38, 38, 0.06);
+}
+.btn-danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.16);
+  box-shadow:
+    0 4px 20px rgba(220, 38, 38, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(220, 38, 38, 0.08);
+}
+
+/* ── Ghost — white frosted glass ──────────────── */
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.68);
+  border-color: rgba(255, 255, 255, 0.90);
+  color: var(--text-2);
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 1.00),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.04);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 1.00),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ── Size variants ─────────────────────────────── */
+.btn-sm {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+}
+.btn-lg {
+  padding: 15px 28px;
+  font-size: 16px;
+}
+.btn-full {
+  width: 100%;
+  padding: 15px 22px;
+  font-size: 16px;
+}
