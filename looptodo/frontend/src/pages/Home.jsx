@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, memo } from 'react';
+import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { getTodayTasks, completeTask, deleteTask } from '../api.js';
 import TaskItem from '../components/TaskItem.jsx';
 import Ballpit from '../components/Ballpit.jsx';
@@ -22,9 +22,13 @@ export default function Home() {
   const [error,   setError]   = useState('');
   const [modal,   setModal]   = useState({ open: false, id: null, title: '' });
 
+  // Track the deferred reload timer so we can cancel it on unmount or before
+  // re-scheduling — prevents stale callbacks from racing with fresh mounts.
+  const reloadTimerRef = useRef(null);
+
   const load = useCallback(async () => {
+    setError('');
     try {
-      setError('');
       const data = await getTodayTasks(todayStr());
       setTasks(data);
     } catch {
@@ -34,11 +38,24 @@ export default function Home() {
     }
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+    return () => {
+      // Cancel any pending reload when leaving the page so the stale callback
+      // never fires setState on the previous component instance.
+      clearTimeout(reloadTimerRef.current);
+    };
+  }, [load]);
 
-  function handleComplete(id) {
-    completeTask(id, todayStr());
-    setTimeout(load, 480);
+  async function handleComplete(id) {
+    try {
+      await completeTask(id, todayStr());
+    } catch {
+      // If the API call fails the task will reappear on the next reload.
+    }
+    // Cancel any previously scheduled reload before scheduling a fresh one.
+    clearTimeout(reloadTimerRef.current);
+    reloadTimerRef.current = setTimeout(load, 480);
   }
 
   function handleDelete(id) {
@@ -47,8 +64,14 @@ export default function Home() {
   }
 
   async function confirmDelete() {
+    // Capture id before closing modal so the async call uses the right value.
+    const taskId = modal.id;
     setModal(m => ({ ...m, open: false }));
-    await deleteTask(modal.id);
+    try {
+      await deleteTask(taskId);
+    } catch {
+      // Delete failed silently; the task will still appear on reload.
+    }
     load();
   }
 
