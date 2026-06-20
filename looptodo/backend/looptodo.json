@@ -75,11 +75,5 @@
       "isActive": true
     }
   ],
-  "completions": [
-    {
-      "id": "27cad016-dac0-4560-81c1-1fcdfe45bcc8",
-      "taskId": "9c76bad4-6f56-4a2e-ab40-2e4d4c81254d",
-      "completedAt": "2026-06-19T04:00:00.000Z"
-    }
-  ]
+  "completions": []
 }

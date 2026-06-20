@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router
 import Home    from './pages/Home.jsx';
 import AddTask from './pages/AddTask.jsx';
 import History from './pages/History.jsx';
+import Manage  from './pages/Manage.jsx';
 import './App.css';
 
 const IconToday = () => (
@@ -29,6 +30,14 @@ const IconHistory = () => (
   </svg>
 );
 
+const IconManage = () => (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+    <path d="M4 6h14M4 11h10M4 16h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+    <circle cx="17" cy="15" r="3.2" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+    <path d="M19.3 17.3l1.5 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+  </svg>
+);
+
 function AppShell() {
   const { pathname } = useLocation();
   const isHome = pathname === '/';
@@ -45,6 +54,7 @@ function AppShell() {
           <Route path="/"        element={<Home />}    />
           <Route path="/add"     element={<AddTask />} />
           <Route path="/history" element={<History />} />
+          <Route path="/manage"  element={<Manage />}  />
         </Routes>
       </main>
 
@@ -60,6 +70,10 @@ function AppShell() {
         <NavLink to="/history" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
           <span className="nav-icon"><IconHistory /></span>
           <span>History</span>
+        </NavLink>
+        <NavLink to="/manage" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+          <span className="nav-icon"><IconManage /></span>
+          <span>Tasks</span>
         </NavLink>
       </nav>
     </div>

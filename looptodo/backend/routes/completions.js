@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// GET /api/completions
+// GET /api/completions?userId=
 router.get('/', (req, res) => {
-  const completions = db.getCompletions();
-  const tasks = db.getTasks();
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  const completions = db.getCompletions().filter(c => c.userId === userId);
+  const tasks = db.getTasks().filter(t => t.userId === userId);
   const taskMap = Object.fromEntries(tasks.map(t => [t.id, t]));
 
   const result = completions
@@ -21,10 +24,13 @@ router.get('/', (req, res) => {
   res.json(result);
 });
 
-// GET /api/completions/streaks
+// GET /api/completions/streaks?userId=
 router.get('/streaks', (req, res) => {
-  const completions = db.getCompletions();
-  const tasks = db.getTasks();
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  const completions = db.getCompletions().filter(c => c.userId === userId);
+  const tasks = db.getTasks().filter(t => t.userId === userId);
   const taskMap = Object.fromEntries(tasks.map(t => [t.id, t]));
 
   const counts = {};
@@ -41,16 +47,36 @@ router.get('/streaks', (req, res) => {
 });
 
 // DELETE /api/completions/batch — must precede /:id to avoid param capture
+// body: { ids: string[], userId: string }
 router.delete('/batch', (req, res) => {
-  const { ids } = req.body;
-  if (!Array.isArray(ids) || ids.length === 0)
+  const { ids, userId } = req.body;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+  if (!Array.isArray(ids) || ids.length === 0) {
     return res.status(400).json({ error: 'ids must be a non-empty array' });
-  db.deleteCompletions(ids);
-  res.json({ success: true, deleted: ids.length });
+  }
+
+  // Only delete completions that actually belong to this user
+  const ownedIds = new Set(
+    db.getCompletions()
+      .filter(c => c.userId === userId)
+      .map(c => c.id)
+  );
+  const safeIds = ids.filter(id => ownedIds.has(id));
+
+  db.deleteCompletions(safeIds);
+  res.json({ success: true, deleted: safeIds.length });
 });
 
-// DELETE /api/completions/:id
+// DELETE /api/completions/:id?userId=
 router.delete('/:id', (req, res) => {
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId required' });
+
+  const completion = db.getCompletions().find(c => c.id === req.params.id);
+  if (!completion || completion.userId !== userId) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
   db.deleteCompletion(req.params.id);
   res.json({ success: true });
 });

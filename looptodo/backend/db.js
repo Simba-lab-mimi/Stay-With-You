@@ -73,8 +73,29 @@ function deleteCompletions(ids) {
   write(data);
 }
 
+function purgeExpiredTasks() {
+  const ONE_HOUR = 60 * 60 * 1000;
+  const now = Date.now();
+  const data = read();
+  const before = data.tasks.length;
+  const surviving = new Set();
+
+  data.tasks = data.tasks.filter(t => {
+    if (!t.deletedAt) { surviving.add(t.id); return true; }
+    const keep = (now - new Date(t.deletedAt).getTime()) < ONE_HOUR;
+    if (keep) surviving.add(t.id);
+    return keep;
+  });
+
+  // Remove completions whose tasks were purged
+  data.completions = data.completions.filter(c => surviving.has(c.taskId));
+
+  if (data.tasks.length !== before) write(data);
+}
+
 module.exports = {
   getTasks, getTask, insertTask, updateTask,
   getCompletions, insertCompletion,
   deleteCompletion, deleteCompletions,
+  purgeExpiredTasks,
 };
