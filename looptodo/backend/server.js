@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { purgeExpiredTasks } = require('./db');
+const { init, purgeExpiredTasks } = require('./db');
 
 const app = express();
 
@@ -22,11 +22,18 @@ app.use('/api/completions', require('./routes/completions'));
 
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
-// Purge tasks deleted more than 1 hour ago — runs every 5 minutes
-purgeExpiredTasks();
-setInterval(purgeExpiredTasks, 5 * 60 * 1000);
+// Load all data from Supabase into memory, then start accepting requests.
+init()
+  .then(() => {
+    purgeExpiredTasks();
+    setInterval(purgeExpiredTasks, 5 * 60 * 1000);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`LoopTodo backend → http://localhost:${PORT}`);
-});
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+      console.log(`LoopTodo backend → http://localhost:${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Failed to initialise database:', err.message);
+    process.exit(1);
+  });
