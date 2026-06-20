@@ -1,5 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { IdentityProvider, useIdentity } from './IdentityContext.jsx';
+import WelcomeModal from './components/WelcomeModal.jsx';
+import UserBadge    from './components/UserBadge.jsx';
 import Home    from './pages/Home.jsx';
 import AddTask from './pages/AddTask.jsx';
 import History from './pages/History.jsx';
@@ -40,13 +43,18 @@ const IconManage = () => (
 
 function AppShell() {
   const { pathname } = useLocation();
+  const { isNew, commitName } = useIdentity();
   const isHome = pathname === '/';
 
   return (
     <div className={`app${isHome ? ' app--home' : ''}`}>
-      <header className="app-header">
+      {/* Blocks the entire UI until the user completes the welcome flow */}
+      <WelcomeModal open={isNew} onCommit={commitName} />
+
+      <header className={`app-header${isHome ? ' app-header--home' : ''}`}>
         <span className="app-logo">🦁</span>
         <h1 className="app-title">StayWithYou</h1>
+        <UserBadge />
       </header>
 
       <main className="app-main">
@@ -83,7 +91,9 @@ function AppShell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppShell />
+      <IdentityProvider>
+        <AppShell />
+      </IdentityProvider>
     </BrowserRouter>
   );
 }

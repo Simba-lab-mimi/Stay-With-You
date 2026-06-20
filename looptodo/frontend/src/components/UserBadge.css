@@ -1,0 +1,145 @@
+/* ── Wrapper ────────────────────────────────── */
+.ub-wrap {
+  position: relative;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* ── Pill trigger ───────────────────────────── */
+.ub-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px 5px 5px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  box-shadow:
+    0 1px 6px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  font-family: inherit;
+  transition:
+    background  var(--dur-sm) var(--ease-smooth),
+    box-shadow  var(--dur-sm) var(--ease-smooth),
+    transform   var(--dur-sm) var(--ease-smooth);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ub-pill:hover {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.ub-pill:active {
+  transform: scale(0.96);
+}
+
+/* ── Avatar circle ──────────────────────────── */
+.ub-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-deep));
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ── Name label ─────────────────────────────── */
+.ub-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+/* ── Dropdown panel ─────────────────────────── */
+.ub-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 200px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.96);
+  box-shadow: var(--glass-shadow-lg);
+  padding: 14px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 200;
+  animation: ub-drop var(--dur-sm) var(--ease-spring) both;
+}
+
+.ub-panel__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+
+.ub-panel__name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.ub-panel__id {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-soft);
+  border: 1px solid rgba(107, 92, 231, 0.12);
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  transition: background var(--dur-sm);
+}
+
+.ub-panel__id:hover {
+  background: rgba(107, 92, 231, 0.15);
+}
+
+.ub-panel__uuid {
+  font-size: 12px;
+  font-family: 'SF Mono', 'Menlo', monospace;
+  color: var(--primary);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.ub-panel__copy {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ── Animation ──────────────────────────────── */
+@keyframes ub-drop {
+  from { transform: translateY(-6px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}

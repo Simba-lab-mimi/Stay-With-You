@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTask } from '../api.js';
+import { useIdentity } from '../IdentityContext.jsx';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function AddTask() {
   const navigate = useNavigate();
+  const { displayName } = useIdentity();
 
-  const [title, setTitle] = useState('');
-  const [type, setType] = useState('daily');
+  const [title, setTitle]       = useState('');
+  const [type, setType]         = useState('daily');
   const [interval, setInterval] = useState(2);
   const [weekdays, setWeekdays] = useState([]);
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+  const [saving, setSaving]     = useState(false);
+  const [error, setError]       = useState('');
 
   function toggleDay(i) {
     setWeekdays(prev =>
@@ -48,6 +50,18 @@ export default function AddTask() {
 
   return (
     <div className="page">
+      {/* ── User attribution strip ─────────────── */}
+      {displayName && (
+        <div className="add-owner-strip">
+          <span className="add-owner-strip__avatar" aria-hidden="true">
+            {displayName[0].toUpperCase()}
+          </span>
+          <span className="add-owner-strip__text">
+            Adding as <strong>{displayName}</strong>
+          </span>
+        </div>
+      )}
+
       <p className="page-title">New recurring task</p>
 
       <form className="task-form" onSubmit={handleSubmit}>
