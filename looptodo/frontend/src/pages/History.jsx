@@ -11,7 +11,7 @@ function fmtDate(iso) {
 function groupByDate(completions) {
   const groups = {};
   completions.forEach(c => {
-    const key = c.completedAt.split('T')[0];
+    const key = c.completedAt.slice(0, 10);
     if (!groups[key]) groups[key] = [];
     groups[key].push(c);
   });

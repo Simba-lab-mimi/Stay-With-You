@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback, memo } from 'react';
 import { getTodayTasks, completeTask, deleteTask } from '../api.js';
+import { localDateStr } from '../utils/date.js';
 import TaskItem from '../components/TaskItem.jsx';
 import Ballpit from '../components/Ballpit.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
@@ -14,8 +15,6 @@ const BallpitBackground = memo(function BallpitBackground() {
   );
 });
 
-function todayStr() { return new Date().toISOString().split('T')[0]; }
-
 export default function Home() {
   const [tasks,   setTasks]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +28,7 @@ export default function Home() {
   const load = useCallback(async () => {
     setError('');
     try {
-      const data = await getTodayTasks(todayStr());
+      const data = await getTodayTasks(localDateStr());
       setTasks(data);
     } catch {
       setError('Could not reach the server. Is the backend running?');
@@ -49,7 +48,7 @@ export default function Home() {
 
   async function handleComplete(id) {
     try {
-      await completeTask(id, todayStr());
+      await completeTask(id, localDateStr());
     } catch {
       // If the API call fails the task will reappear on the next reload.
     }

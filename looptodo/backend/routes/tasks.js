@@ -81,7 +81,7 @@ router.post('/:id/complete', (req, res) => {
     id: uuidv4(),
     userId,
     taskId: task.id,
-    completedAt: new Date(completedDate + 'T12:00:00').toISOString(),
+    completedAt: new Date(completedDate + 'T12:00:00Z').toISOString(),
   });
 
   const nextDueDate = computeNextDueDate(task, completedDate);

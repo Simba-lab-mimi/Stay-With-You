@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createTask } from '../api.js';
 import { useIdentity } from '../IdentityContext.jsx';
+import { localDateStr } from '../utils/date.js';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -13,7 +14,7 @@ export default function AddTask() {
   const [type, setType]         = useState('daily');
   const [interval, setInterval] = useState(2);
   const [weekdays, setWeekdays] = useState([]);
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState(localDateStr());
   const [saving, setSaving]     = useState(false);
   const [error, setError]       = useState('');
 
