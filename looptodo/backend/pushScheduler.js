@@ -96,6 +96,66 @@ async function sendDailyReminders() {
   }
 }
 
+// ── Temporary scheduler test (2026-06-24 22:47 Asia/Shanghai) ─────────────
+// Remove this block after confirming the test notification arrives.
+async function sendSchedulerTestNotification() {
+  console.log('[push-test] scheduler triggered');
+
+  const pub  = process.env.VAPID_PUBLIC_KEY;
+  const priv = process.env.VAPID_PRIVATE_KEY;
+  const subj = process.env.VAPID_SUBJECT;
+  if (!pub || !priv || !subj) {
+    console.error('[push-test] VAPID keys not configured, aborting');
+    return;
+  }
+  webpush.setVapidDetails(subj, pub, priv);
+
+  const { data: subs, error } = await supabase
+    .from('push_subscriptions')
+    .select('*')
+    .eq('is_active', true);
+
+  if (error) { console.error('[push-test] DB error:', error.message); return; }
+  if (!subs?.length) { console.log('[push-test] no active subscriptions found'); return; }
+
+  const payload = JSON.stringify({
+    title: 'Stay With You 💙',
+    body:  'This is an automatic scheduler test.\nIf you received this message, the daily reminder system is working correctly.',
+    url:   '/',
+  });
+
+  for (const sub of subs) {
+    console.log(`[push-test] sending notification to user: ${sub.user_id}`);
+    try {
+      await webpush.sendNotification(sub.subscription, payload);
+      console.log(`[push-test] notification sent successfully → user ${sub.user_id}`);
+    } catch (err) {
+      console.error(`[push-test] send failed for user ${sub.user_id}:`, err.message);
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        await supabase.from('push_subscriptions')
+          .update({ is_active: false })
+          .eq('id', sub.id);
+      }
+    }
+  }
+}
+
+function scheduleOneTimeTest() {
+  // Target: 2026-06-24 22:47:00 Asia/Shanghai (UTC+8) = 2026-06-24T14:47:00Z
+  const TARGET_UTC = new Date('2026-06-24T14:47:00Z');
+  const delay = TARGET_UTC.getTime() - Date.now();
+
+  if (delay < 0) {
+    console.log('[push-test] target time already passed, skipping one-time test');
+    return;
+  }
+
+  const minutesUntil = Math.round(delay / 60000);
+  console.log(`[push-test] one-time test scheduled for 22:47 Asia/Shanghai (~${minutesUntil} min from now)`);
+  setTimeout(sendSchedulerTestNotification, delay);
+}
+// ── End temporary test block ───────────────────────────────────────────────
+
 function startPushScheduler() {
   const configured = !!(
     process.env.VAPID_PUBLIC_KEY &&
@@ -116,6 +176,9 @@ function startPushScheduler() {
   setTimeout(sendDailyReminders, 30_000);
 
   console.log('[push] daily reminder scheduler started (checks every 10 min)');
+
+  // Temporary one-time test — remove after confirmation
+  scheduleOneTimeTest();
 }
 
 module.exports = { startPushScheduler, sendDailyReminders };

@@ -82,6 +82,12 @@
   cursor: default;
 }
 
+/* Busy state — subtle pulse so user knows work is happening */
+.push-btn--busy {
+  opacity: 0.75;
+  cursor: wait;
+}
+
 /* Feedback message */
 .push-message {
   width: 100%;
@@ -89,4 +95,10 @@
   color: var(--text-muted);
   margin: 0;
   padding-left: 2px;
+}
+
+/* Live progress message shown during an operation */
+.push-message--progress {
+  color: var(--primary);
+  font-weight: 500;
 }

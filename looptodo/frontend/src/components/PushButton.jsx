@@ -1,81 +1,99 @@
 import React, { useEffect, useState } from 'react';
-import { getPushState, subscribeToPush, unsubscribeFromPush, sendTestNotification, isPushSupported } from '../push.js';
+import {
+  getPushState,
+  subscribeToPush,
+  unsubscribeFromPush,
+  sendTestNotification,
+  isPushSupported,
+} from '../push.js';
 import './PushButton.css';
 
-const LABELS = {
+const STATIC_LABELS = {
   on:          'Reminders On',
   off:         'Enable Reminders',
   denied:      'Notifications Blocked',
   unsupported: 'Push Not Supported',
-  loading:     '…',
+  loading:     'Checking…',
 };
 
 export default function PushButton() {
-  const [state,   setState]   = useState('loading');
-  const [busy,    setBusy]    = useState(false);
-  const [message, setMessage] = useState('');
+  const [state,    setState]    = useState('loading');
+  const [busy,     setBusy]     = useState(false);
+  const [progress, setProgress] = useState('');  // live step text during operation
+  const [feedback, setFeedback] = useState('');  // final success/error text after operation
 
   useEffect(() => {
     getPushState().then(setState);
   }, []);
 
   async function handleToggle() {
-    if (busy || state === 'denied' || state === 'unsupported') return;
+    if (busy || state === 'denied' || state === 'unsupported' || state === 'loading') return;
     setBusy(true);
-    setMessage('');
+    setProgress('');
+    setFeedback('');
+
     try {
       if (state === 'on') {
+        setProgress('Turning off…');
         await unsubscribeFromPush();
         setState('off');
-        setMessage('Reminders turned off.');
+        setFeedback('Reminders turned off.');
       } else {
-        await subscribeToPush();
+        await subscribeToPush((msg) => setProgress(msg));
         setState('on');
-        setMessage('Reminders enabled! You\'ll get a daily nudge at 8 AM.');
+        setFeedback('Reminders enabled. Daily nudge from 8 AM.');
       }
     } catch (err) {
       if (err.message === 'denied') {
         setState('denied');
-        setMessage('Permission denied. Enable notifications in browser settings.');
+        setFeedback('Permission denied. Enable notifications in browser settings.');
       } else if (err.message === 'unsupported') {
         setState('unsupported');
       } else {
-        setMessage(err.message || 'Something went wrong. Please try again.');
+        setFeedback(err.message || 'Something went wrong. Please try again.');
       }
     } finally {
+      setProgress('');
       setBusy(false);
     }
   }
 
   async function handleTest() {
+    if (busy) return;
     setBusy(true);
-    setMessage('');
+    setProgress('');
+    setFeedback('');
+
     try {
-      await sendTestNotification();
-      setMessage('Test notification sent!');
+      await sendTestNotification((msg) => setProgress(msg));
+      setFeedback('Test sent successfully!');
     } catch (err) {
-      setMessage(err.message || 'Test failed.');
+      setFeedback(`Test failed: ${err.message || 'unknown error'}`);
     } finally {
+      setProgress('');
       setBusy(false);
     }
   }
 
   if (!isPushSupported()) return null;
 
+  // Button label: show live progress while busy, otherwise the static state label
+  const btnLabel = busy && progress
+    ? progress
+    : (STATIC_LABELS[state] ?? STATIC_LABELS.off);
+
   return (
     <div className="push-widget">
       <button
-        className={`push-btn push-btn--${state}`}
+        className={`push-btn push-btn--${state}${busy ? ' push-btn--busy' : ''}`}
         onClick={handleToggle}
         disabled={busy || state === 'denied' || state === 'unsupported' || state === 'loading'}
-        aria-label={LABELS[state]}
+        aria-label={btnLabel}
       >
         <span className="push-btn__icon" aria-hidden="true">
-          {state === 'on' ? '🔔' : state === 'denied' ? '🔕' : '🔔'}
+          {state === 'denied' ? '🔕' : '🔔'}
         </span>
-        <span className="push-btn__label">
-          {busy ? '…' : LABELS[state] ?? LABELS.off}
-        </span>
+        <span className="push-btn__label">{btnLabel}</span>
       </button>
 
       {state === 'on' && (
@@ -83,13 +101,21 @@ export default function PushButton() {
           className="push-test-btn"
           onClick={handleTest}
           disabled={busy}
-          aria-label="Send a test notification"
+          aria-label="Send a test push notification"
         >
-          Test
+          {busy ? '…' : 'Test'}
         </button>
       )}
 
-      {message && <p className="push-message">{message}</p>}
+      {/* Show live progress below buttons during an operation */}
+      {busy && progress && (
+        <p className="push-message push-message--progress">{progress}</p>
+      )}
+
+      {/* Show final feedback after operation completes */}
+      {!busy && feedback && (
+        <p className="push-message">{feedback}</p>
+      )}
     </div>
   );
 }

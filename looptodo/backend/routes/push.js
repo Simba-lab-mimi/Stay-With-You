@@ -16,13 +16,41 @@ function vapidReady() {
   return true;
 }
 
+function tableMissingResponse(res) {
+  return res.status(503).json({
+    error: 'push_subscriptions table does not exist — run the Supabase SQL migration first',
+  });
+}
+
 // GET /api/push/health
 router.get('/health', (_req, res) => {
   res.json({ ok: true, push: true, vapid: vapidReady() });
 });
 
+// GET /api/push/status?userId=
+// Returns how many active subscriptions the backend has for this user.
+// Frontend uses this to decide whether to show "Reminders On".
+router.get('/status', async (req, res) => {
+  const { userId } = req.query;
+  if (!userId) return res.status(400).json({ error: 'userId is required' });
+
+  const { data, error } = await supabase
+    .from('push_subscriptions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('is_active', true);
+
+  if (error) {
+    if (TABLE_MISSING_CODES.has(error.code)) return tableMissingResponse(res);
+    return res.status(500).json({ error: 'DB error: ' + error.message });
+  }
+
+  res.json({ ok: true, activeSubscriptions: data?.length ?? 0 });
+});
+
 // POST /api/push/subscribe
 // Body: { userId, subscription, timezone? }
+// Upserts by endpoint — re-activates if previously deactivated, refreshes updated_at.
 router.post('/subscribe', async (req, res) => {
   const { userId, subscription, timezone } = req.body;
   if (!userId || !subscription?.endpoint) {
@@ -35,15 +63,12 @@ router.post('/subscribe', async (req, res) => {
     subscription,
     timezone:    timezone || 'UTC',
     is_active:   true,
+    updated_at:  new Date().toISOString(),
   }, { onConflict: 'endpoint' });
 
   if (error) {
     console.error('[push] subscribe error:', error.message, error.code);
-    if (TABLE_MISSING_CODES.has(error.code)) {
-      return res.status(503).json({
-        error: 'push_subscriptions table does not exist — run the Supabase SQL migration first',
-      });
-    }
+    if (TABLE_MISSING_CODES.has(error.code)) return tableMissingResponse(res);
     return res.status(500).json({ error: 'Failed to save subscription: ' + error.message });
   }
 
@@ -59,15 +84,12 @@ router.post('/unsubscribe', async (req, res) => {
   }
 
   const { error } = await supabase.from('push_subscriptions')
-    .update({ is_active: false })
+    .update({ is_active: false, updated_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('endpoint', endpoint);
 
   if (error) {
-    console.error('[push] unsubscribe error:', error.message, error.code);
-    if (TABLE_MISSING_CODES.has(error.code)) {
-      return res.status(503).json({ error: 'push_subscriptions table does not exist' });
-    }
+    if (TABLE_MISSING_CODES.has(error.code)) return tableMissingResponse(res);
     return res.status(500).json({ error: 'Failed to unsubscribe: ' + error.message });
   }
 
@@ -93,12 +115,7 @@ router.post('/test', async (req, res) => {
     .eq('is_active', true);
 
   if (error) {
-    console.error('[push] test — DB fetch error:', error.message, error.code);
-    if (TABLE_MISSING_CODES.has(error.code)) {
-      return res.status(503).json({
-        error: 'push_subscriptions table does not exist — run the Supabase SQL migration first',
-      });
-    }
+    if (TABLE_MISSING_CODES.has(error.code)) return tableMissingResponse(res);
     return res.status(500).json({ error: 'DB error: ' + error.message });
   }
 
@@ -124,10 +141,9 @@ router.post('/test', async (req, res) => {
     } catch (err) {
       errors.push(err.message);
       console.error('[push] test send failed:', err.message);
-      // 410 Gone / 404 = browser revoked the subscription
       if (err.statusCode === 410 || err.statusCode === 404) {
         await supabase.from('push_subscriptions')
-          .update({ is_active: false })
+          .update({ is_active: false, updated_at: new Date().toISOString() })
           .eq('id', sub.id);
         console.log('[push] deactivated expired subscription id', sub.id);
       }
