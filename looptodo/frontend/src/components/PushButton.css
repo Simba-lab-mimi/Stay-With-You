@@ -1,0 +1,92 @@
+.push-widget {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.push-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  transition: background 0.15s, opacity 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+
+.push-btn:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+/* Off state — inviting CTA */
+.push-btn--off,
+.push-btn--loading {
+  background: rgba(124, 108, 250, 0.10);
+  border-color: rgba(124, 108, 250, 0.25);
+  color: var(--primary);
+}
+.push-btn--off:not(:disabled):hover {
+  background: rgba(124, 108, 250, 0.18);
+  box-shadow: 0 2px 8px rgba(124, 108, 250, 0.18);
+}
+
+/* On state — active/filled */
+.push-btn--on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.push-btn--on:not(:disabled):hover {
+  background: var(--primary-deep);
+  box-shadow: 0 2px 10px rgba(124, 108, 250, 0.30);
+}
+
+/* Denied / unsupported */
+.push-btn--denied,
+.push-btn--unsupported {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.20);
+  color: var(--danger);
+}
+
+.push-btn__icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Test button */
+.push-test-btn {
+  padding: 7px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  transition: border-color 0.15s, color 0.15s;
+}
+.push-test-btn:not(:disabled):hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.push-test-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Feedback message */
+.push-message {
+  width: 100%;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  padding-left: 2px;
+}

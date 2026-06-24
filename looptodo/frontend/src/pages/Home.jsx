@@ -4,6 +4,7 @@ import { localDateStr } from '../utils/date.js';
 import TaskItem from '../components/TaskItem.jsx';
 import Ballpit from '../components/Ballpit.jsx';
 import ConfirmModal from '../components/ConfirmModal.jsx';
+import PushButton from '../components/PushButton.jsx';
 import './Home.css';
 
 const BallpitBackground = memo(function BallpitBackground() {
@@ -95,6 +96,7 @@ export default function Home() {
               {total} task{total !== 1 ? 's' : ''} left
             </span>
           )}
+          <PushButton />
         </header>
 
         {loading && <p className="home-status">Loading…</p>}

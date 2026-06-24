@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { init, purgeExpiredTasks } = require('./db');
+const { startPushScheduler } = require('./pushScheduler');
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 
 app.use('/api/tasks', require('./routes/tasks'));
 app.use('/api/completions', require('./routes/completions'));
+app.use('/api/push', require('./routes/push'));
 
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
@@ -27,6 +29,7 @@ init()
   .then(() => {
     purgeExpiredTasks();
     setInterval(purgeExpiredTasks, 5 * 60 * 1000);
+    startPushScheduler();
 
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
